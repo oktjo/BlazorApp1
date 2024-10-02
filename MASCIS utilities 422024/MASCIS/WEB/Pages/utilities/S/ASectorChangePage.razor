@@ -1,0 +1,281 @@
+﻿@page "/SectorChangePage"
+@inject IToastService toastService;
+@inject IUtilityService Repo;
+
+<div class="row">
+    <div class="col-md-12">
+        @*<BreadcrumbPage CategoryName="Utility" PageName="Contact" />*@
+    </div>
+    <div class="col-md-12">
+        <SfGrid @ref="@DataGrid" TValue="ASectorChange" ID="Grid1" AllowPaging="true" AllowFiltering="true" AllowReordering="true"
+                AllowResizing="true" AllowGrouping="true" AllowExcelExport="true" AllowPdfExport="true" AllowSelection="true"
+                AllowSorting="true" Toolbar="@(new List<string>() {"Add", "Edit", "Delete", "Cancel", "Update", "Search","PdfExport"})">
+            <GridEditSettings AllowAdding="true" AllowEditing="true" AllowDeleting="true"></GridEditSettings>
+            <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel"></GridFilterSettings>
+            <GridPageSettings PageSizes="true"></GridPageSettings>
+            <GridSelectionSettings Type="Syncfusion.Blazor.Grids.SelectionType.Single"></GridSelectionSettings>
+            <GridEvents OnToolbarClick="@GridToolbarClick" OnActionBegin="OnAYesActionBegin" OnActionComplete=@OnAYesActionComplete TValue="ASectorChange"></GridEvents>
+            <SfDataManager AdaptorInstance="@typeof(ASectorChangeAdapter)" Adaptor="Adaptors.CustomAdaptor"></SfDataManager>
+            <GridEditSettings AllowAdding="true" AllowDeleting="false" AllowEditing="true" Mode="@EditMode.Dialog">
+                <Template Context="AVariationContext">
+                    @{
+
+                        var ContactReviewData = (AVariationContext as ASectorChange);
+                        if (ContactReviewData != null)
+                        {
+                            <div class="row">
+                                <div class="col-md-4" hidden>
+                                    <SfNumericTextBox @bind-Value=@ContactReviewData.FacilityCode />
+                                </div>
+
+                             
+        <div class="row">
+            <div class="col-md-6">
+                                    <label>Date of Change</label>
+                <SfDatePicker @bind-Value=@ContactReviewData.DateOfChange Format="dd/MM/yyyy" Placeholder="select date" FloatLabelType="FloatLabelType.Never"></SfDatePicker>
+            </div>
+         </div>
+
+                                 <div class="col-md-4">
+                                    <label> Description</label>
+                                    <SfNumericTextBox @bind-Value=@ContactReviewData.OldSector Placeholder="Old Sector " FloatLabelType="FloatLabelType.Never" />
+                                </div>
+                                <div class="col-md-4">
+                                    <label> Description</label>
+                                    <SfNumericTextBox @bind-Value=@ContactReviewData.NewSector Placeholder="New Sector" FloatLabelType="FloatLabelType.Never" />
+                                </div>
+
+
+
+
+                            </div>
+                        }
+                    }
+                </Template>
+            </GridEditSettings>
+            <GridColumns>
+                <GridColumn HeaderText="Manage Records" Width="80">
+                    <GridCommandColumns>
+                        <GridCommandColumn Type="CommandButtonType.Edit" ButtonOption="@(new CommandButtonOptions() { CssClass="e-icons e-view-details",Content="View" })" Title="View"></GridCommandColumn>
+                    </GridCommandColumns>
+                </GridColumn>
+                <GridColumn Field=@nameof(ASectorChange.FacilityCode) HeaderText="Facility Code" Visible=true AllowEditing="false" IsPrimaryKey="false" Width="150"></GridColumn>
+                <GridColumn Field=@nameof(ASectorChange.DateOfChange) HeaderText="Date of Change" Width="150"></GridColumn>
+                <GridColumn Field=@nameof(ASectorChange.OldSector) HeaderText="Old Sector" Width="150"></GridColumn>
+
+                <GridColumn Field=@nameof(ASectorChange.NewSector) HeaderText="New Sector" Width="150"></GridColumn>
+
+
+            </GridColumns>
+        </SfGrid>
+    </div>
+</div>
+
+@code {
+    SfGrid<ASectorChange>? DataGrid { get; set; }
+    //List<ADistrict>? Datasource { get; set; }
+
+
+    /// <summary>
+    /// Event for Toolbar click for Grid Exporting
+    /// </summary>
+    public void GridToolbarClick(Syncfusion.Blazor.Navigations.ClickEventArgs args)
+    {
+        if (args.Item.Id == "Grid1_excelexport")
+        {
+            this.DataGrid.ExportToExcelAsync();
+        }
+        if (args.Item.Id == "Grid1_pdfexport")
+        {
+            this.DataGrid.ExportToPdfAsync();
+        }
+        if (args.Item.Id == "Grid1_csvexport")
+        {
+            this.DataGrid.ExportToCsvAsync();
+        }
+    }
+
+    // protected override async Task OnInitializedAsync()
+    // {
+    //     try
+    //     {
+    //         await base.OnInitializedAsync();
+    //         List<Task> t = new List<Task>();
+    //         t.Add(
+    //            Task.Run(async () =>
+    //            {
+    //                Datasource = await Repo.GetDistrict();
+
+    //            }));
+
+
+    //         Task _t = Task.WhenAll(t);
+    //         await _t;
+    //     }
+    //     catch (Exception ex)
+    //     {
+    //         toastService.ShowError(ex.Message);
+    //     }
+
+    // }
+
+    public class ASectorChangeAdapter : DataAdaptor
+    {
+        public IToastService toastService;
+        IUtilityService Repo;
+        public ASectorChangeAdapter(IToastService ts, IUtilityService Repo)
+        {
+            toastService = ts;
+            this.Repo = Repo;
+        }
+
+        public override async Task<Object> ReadAsync(DataManagerRequest dataManagerRequest, string key = null)
+        {
+            var data = new List<ASectorChange>();
+            try
+            {
+                int FacilityId = 0;
+                if (dataManagerRequest.Params != null && dataManagerRequest.Params.Count > 0)
+                {
+                    var val = dataManagerRequest.Params;
+                    if (val.FirstOrDefault(o => o.Key == "FacilityId").Value != null)
+                    {
+                        FacilityId = Convert.ToInt32(val.FirstOrDefault(o => o.Key == "FacilityId").Value.ToString());
+                    }
+                }
+                data = await Repo.GetASectorChange();
+            }
+            catch (Exception ex)
+            {
+                toastService.ShowError(ex.Message.ToString());
+            }
+
+            IEnumerable GridData = data;
+            int _count = data.Count;
+            if (dataManagerRequest.Search != null && dataManagerRequest.Search.Count > 0)
+            {
+                // Searching
+                GridData = DataOperations.PerformSearching(GridData, dataManagerRequest.Search);
+            }
+            if (dataManagerRequest.Where != null && dataManagerRequest.Where.Count > 0)
+            {
+                // Filtering
+                GridData = DataOperations.PerformFiltering(GridData, dataManagerRequest.Where, dataManagerRequest.Where[0].Operator);
+            }
+            if (dataManagerRequest.Sorted?.Count > 0) // perform Sorting
+            {
+                GridData = DataOperations.PerformSorting(GridData, dataManagerRequest.Sorted);
+            }
+            if (dataManagerRequest.Skip != 0)
+            {
+                GridData = DataOperations.PerformSkip(GridData, dataManagerRequest.Skip); //Paging
+            }
+            if (dataManagerRequest.Take != 0)
+            {
+                GridData = DataOperations.PerformTake(GridData, dataManagerRequest.Take);
+            }
+            IDictionary<string, object> aggregates = new Dictionary<string, object>();
+            if (dataManagerRequest.Aggregates != null) // Aggregation
+            {
+                aggregates = DataUtil.PerformAggregation(GridData, dataManagerRequest.Aggregates);
+            }
+            if (dataManagerRequest.Group != null && dataManagerRequest.Group.Any()) //Grouping
+            {
+                foreach (var group in dataManagerRequest.Group)
+                {
+                    GridData = DataUtil.Group<ASectorChange>(GridData, group, dataManagerRequest.Aggregates, 0, dataManagerRequest.GroupByFormatter);
+                }
+            }
+            return dataManagerRequest.RequiresCounts ? new DataResult() { Result = GridData, Count = _count, Aggregates = aggregates } : (object)GridData;
+        }
+
+        public override async Task<Object> InsertAsync(DataManager dataManager, object value, string key)
+        {
+            try
+            {
+                var val = (value as ASectorChange);
+                await Repo.SaveASectorChange(val);
+                // string result = "Record Saved Successfully";
+                //toastService.ShowInfo(result);
+            }
+            catch (Exception ex)
+            {
+                toastService.ShowError(ex.Message.ToString());
+            }
+            return value;
+        }
+
+        public override async Task<object> RemoveAsync(DataManager dataManager, object value, string keyField, string key)
+        {
+            try
+            {
+                int data = (int)value;
+
+            }
+            catch (Exception ex)
+            {
+                toastService.ShowError(ex.Message.ToString());
+            }
+
+
+            return value;
+        }
+
+        public override async Task<object> UpdateAsync(DataManager dataManager, object value, string keyField, string key)
+        {
+            try
+            {
+                var val = (value as ASectorChange);
+                await Repo.SaveASectorChange(val);
+                //string result = "Record Saved Successfully";
+                //toastService.ShowInfo(result);
+            }
+            catch (Exception ex)
+            {
+                toastService.ShowError(ex.Message.ToString());
+            }
+
+            return value;
+        }
+    }
+    private void OnAYesActionBegin(ActionEventArgs<ASectorChange> args)
+    {
+        if (args.RequestType == Syncfusion.Blazor.Grids.Action.Add)
+        {
+
+
+        }
+        else if (args.RequestType == Syncfusion.Blazor.Grids.Action.BeginEdit)
+        {
+
+        }
+        else if (args.RequestType == Syncfusion.Blazor.Grids.Action.Save)
+        {
+           
+             if (args.Data.OldSector == null)
+            {
+                toastService.ShowInfo("Please add the old sector before saving this Contact.");
+                args.Cancel = true;
+            }
+            else if (args.Data.NewSector == null)
+            {
+                toastService.ShowInfo("Please add the new sector before saving this Contact.");
+                args.Cancel = true;
+            }
+            else
+            {
+
+            }
+
+
+        }
+    }
+    private void OnAYesActionComplete(ActionEventArgs<ASectorChange> args)
+    {
+        if (args.RequestType == Syncfusion.Blazor.Grids.Action.Add || args.RequestType == Syncfusion.Blazor.Grids.Action.BeginEdit)
+        {
+            DataGrid.PreventRender(false);
+        }
+    }
+
+}
