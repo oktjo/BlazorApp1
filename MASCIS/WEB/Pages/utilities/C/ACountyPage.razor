@@ -1,0 +1,282 @@
+﻿@page "/CountyPage"
+@inject IToastService toastService;
+@inject IUtilityService Repo;
+
+<div class="row">
+    <div class="col-md-12">
+        @*<BreadcrumbPage CategoryName="Utility" PageName="Contact" />*@
+    </div>
+    <div class="col-md-12">
+        <SfGrid @ref="@DataGrid" TValue="ACounty" ID="Grid1" AllowPaging="true" AllowFiltering="true" AllowReordering="true"
+                AllowResizing="true" AllowGrouping="true" AllowExcelExport="true" AllowPdfExport="true" AllowSelection="true"
+                AllowSorting="true" Toolbar="@(new List<string>() {"Add", "Edit", "Delete", "Cancel", "Update", "Search","PdfExport"})">
+            <GridEditSettings AllowAdding="true" AllowEditing="true" AllowDeleting="true"></GridEditSettings>
+            <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel"></GridFilterSettings>
+            <GridPageSettings PageSizes="true"></GridPageSettings>
+            <GridSelectionSettings Type="Syncfusion.Blazor.Grids.SelectionType.Single"></GridSelectionSettings>
+            <GridEvents OnToolbarClick="@GridToolbarClick" OnActionBegin="OnAYesActionBegin" OnActionComplete=@OnAYesActionComplete TValue="ACounty"></GridEvents>
+            <SfDataManager AdaptorInstance="@typeof(ACountyAdapter)" Adaptor="Adaptors.CustomAdaptor"></SfDataManager>
+            <GridEditSettings AllowAdding="true" AllowDeleting="false" AllowEditing="true" Mode="@EditMode.Dialog">
+                <Template Context="AVariationContext">
+                    @{
+
+                        var ContactReviewData = (AVariationContext as ACounty);
+                        if (ContactReviewData != null)
+                        {
+                            <div class="row">
+                                <div class="col-md-4" hidden>
+                                    <SfNumericTextBox @bind-Value=@ContactReviewData.CountyId />
+                                </div>
+
+                                <div class="col-md-4">
+                                    <label> Description</label>
+                                    <SfTextBox Multiline=false @bind-Value=@ContactReviewData.CountyName Placeholder="County Name" FloatLabelType="FloatLabelType.Never" />
+                                </div>
+
+                                <div class="col-md-4">
+                                    <label> Description</label>
+                                    <SfNumericTextBox @bind-Value=@ContactReviewData.DistrictId Placeholder="District Id" FloatLabelType="FloatLabelType.Never" />
+                                </div>
+                                <div class="col-md-4">
+                                    <label> Description</label>
+                                    <SfNumericTextBox @bind-Value=@ContactReviewData.CountyMinistryCode Placeholder="County Ministry Code" FloatLabelType="FloatLabelType.Never" />
+                                </div>
+                               
+
+
+
+                            </div>
+                        }
+                    }
+                </Template>
+            </GridEditSettings>
+            <GridColumns>
+                <GridColumn HeaderText="Manage Records" Width="80">
+                    <GridCommandColumns>
+                        <GridCommandColumn Type="CommandButtonType.Edit" ButtonOption="@(new CommandButtonOptions() { CssClass="e-icons e-view-details",Content="View" })" Title="View"></GridCommandColumn>
+                    </GridCommandColumns>
+                </GridColumn>
+                <GridColumn Field=@nameof(ACounty.CountyId) HeaderText="SId" Visible=false AllowEditing="false" IsPrimaryKey="true" Width="150"></GridColumn>
+                <GridColumn Field=@nameof(ACounty.DistrictId) HeaderText="District Id" Width="150"></GridColumn>
+                <GridColumn Field=@nameof(ACounty.CountyName) HeaderText="County Name" Width="150"></GridColumn>
+
+                <GridColumn Field=@nameof(ACounty.CountyMinistryCode) HeaderText="Status" Width="150"></GridColumn>
+               
+
+            </GridColumns>
+        </SfGrid>
+    </div>
+</div>
+
+@code {
+    SfGrid<ACounty>? DataGrid { get; set; }
+    //List<ADistrict>? Datasource { get; set; }
+
+
+    /// <summary>
+    /// Event for Toolbar click for Grid Exporting
+    /// </summary>
+    public void GridToolbarClick(Syncfusion.Blazor.Navigations.ClickEventArgs args)
+    {
+        if (args.Item.Id == "Grid1_excelexport")
+        {
+            this.DataGrid.ExportToExcelAsync();
+        }
+        if (args.Item.Id == "Grid1_pdfexport")
+        {
+            this.DataGrid.ExportToPdfAsync();
+        }
+        if (args.Item.Id == "Grid1_csvexport")
+        {
+            this.DataGrid.ExportToCsvAsync();
+        }
+    }
+
+    // protected override async Task OnInitializedAsync()
+    // {
+    //     try
+    //     {
+    //         await base.OnInitializedAsync();
+    //         List<Task> t = new List<Task>();
+    //         t.Add(
+    //            Task.Run(async () =>
+    //            {
+    //                Datasource = await Repo.GetDistrict();
+
+    //            }));
+
+
+    //         Task _t = Task.WhenAll(t);
+    //         await _t;
+    //     }
+    //     catch (Exception ex)
+    //     {
+    //         toastService.ShowError(ex.Message);
+    //     }
+
+    // }
+
+    public class ACountyAdapter : DataAdaptor
+    {
+        public IToastService toastService;
+        IUtilityService Repo;
+        public ACountyAdapter(IToastService ts, IUtilityService Repo)
+        {
+            toastService = ts;
+            this.Repo = Repo;
+        }
+
+        public override async Task<Object> ReadAsync(DataManagerRequest dataManagerRequest, string key = null)
+        {
+            var data = new List<ACounty>();
+            try
+            {
+                int FacilityId = 0;
+                if (dataManagerRequest.Params != null && dataManagerRequest.Params.Count > 0)
+                {
+                    var val = dataManagerRequest.Params;
+                    if (val.FirstOrDefault(o => o.Key == "FacilityId").Value != null)
+                    {
+                        FacilityId = Convert.ToInt32(val.FirstOrDefault(o => o.Key == "FacilityId").Value.ToString());
+                    }
+                }
+                data = await Repo.GetACounty();
+            }
+            catch (Exception ex)
+            {
+                toastService.ShowError(ex.Message.ToString());
+            }
+
+            IEnumerable GridData = data;
+            int _count = data.Count;
+            if (dataManagerRequest.Search != null && dataManagerRequest.Search.Count > 0)
+            {
+                // Searching
+                GridData = DataOperations.PerformSearching(GridData, dataManagerRequest.Search);
+            }
+            if (dataManagerRequest.Where != null && dataManagerRequest.Where.Count > 0)
+            {
+                // Filtering
+                GridData = DataOperations.PerformFiltering(GridData, dataManagerRequest.Where, dataManagerRequest.Where[0].Operator);
+            }
+            if (dataManagerRequest.Sorted?.Count > 0) // perform Sorting
+            {
+                GridData = DataOperations.PerformSorting(GridData, dataManagerRequest.Sorted);
+            }
+            if (dataManagerRequest.Skip != 0)
+            {
+                GridData = DataOperations.PerformSkip(GridData, dataManagerRequest.Skip); //Paging
+            }
+            if (dataManagerRequest.Take != 0)
+            {
+                GridData = DataOperations.PerformTake(GridData, dataManagerRequest.Take);
+            }
+            IDictionary<string, object> aggregates = new Dictionary<string, object>();
+            if (dataManagerRequest.Aggregates != null) // Aggregation
+            {
+                aggregates = DataUtil.PerformAggregation(GridData, dataManagerRequest.Aggregates);
+            }
+            if (dataManagerRequest.Group != null && dataManagerRequest.Group.Any()) //Grouping
+            {
+                foreach (var group in dataManagerRequest.Group)
+                {
+                    GridData = DataUtil.Group<ACounty>(GridData, group, dataManagerRequest.Aggregates, 0, dataManagerRequest.GroupByFormatter);
+                }
+            }
+            return dataManagerRequest.RequiresCounts ? new DataResult() { Result = GridData, Count = _count, Aggregates = aggregates } : (object)GridData;
+        }
+
+        public override async Task<Object> InsertAsync(DataManager dataManager, object value, string key)
+        {
+            try
+            {
+                var val = (value as ACounty);
+                await Repo.SaveACounty(val);
+                // string result = "Record Saved Successfully";
+                //toastService.ShowInfo(result);
+            }
+            catch (Exception ex)
+            {
+                toastService.ShowError(ex.Message.ToString());
+            }
+            return value;
+        }
+
+        public override async Task<object> RemoveAsync(DataManager dataManager, object value, string keyField, string key)
+        {
+            try
+            {
+                int data = (int)value;
+
+            }
+            catch (Exception ex)
+            {
+                toastService.ShowError(ex.Message.ToString());
+            }
+
+
+            return value;
+        }
+
+        public override async Task<object> UpdateAsync(DataManager dataManager, object value, string keyField, string key)
+        {
+            try
+            {
+                var val = (value as ACounty);
+                await Repo.SaveACounty(val);
+                //string result = "Record Saved Successfully";
+                //toastService.ShowInfo(result);
+            }
+            catch (Exception ex)
+            {
+                toastService.ShowError(ex.Message.ToString());
+            }
+
+            return value;
+        }
+    }
+    private void OnAYesActionBegin(ActionEventArgs<ACounty> args)
+    {
+        if (args.RequestType == Syncfusion.Blazor.Grids.Action.Add)
+        {
+
+
+        }
+        else if (args.RequestType == Syncfusion.Blazor.Grids.Action.BeginEdit)
+        {
+
+        }
+        else if (args.RequestType == Syncfusion.Blazor.Grids.Action.Save)
+        {
+            if (string.IsNullOrEmpty(args.Data.CountyName))
+            {
+                toastService.ShowInfo("Please Enter the county Name before saving this Contact.");
+                args.Cancel = true;
+            }
+            else if (args.Data.CountyMinistryCode == null)
+            {
+                toastService.ShowInfo("Please select the CountyMinistry Code before saving this Contact.");
+                args.Cancel = true;
+            }
+            else if (args.Data.DistrictId == null)
+            {
+                toastService.ShowInfo("Please select the district Id before saving this Contact.");
+                args.Cancel = true;
+            }
+            else
+            {
+
+            }
+
+
+        }
+    }
+    private void OnAYesActionComplete(ActionEventArgs<ACounty> args)
+    {
+        if (args.RequestType == Syncfusion.Blazor.Grids.Action.Add || args.RequestType == Syncfusion.Blazor.Grids.Action.BeginEdit)
+        {
+            DataGrid.PreventRender(false);
+        }
+    }
+
+}

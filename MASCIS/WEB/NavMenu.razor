@@ -1,0 +1,380 @@
+﻿@inject IUtilityService utilityRepo;
+@inject IAuthenticationService AuthService;
+<MudDrawerHeader Style="margin-top:10px;">
+    <img src="images/mascislog1.png" style="margin-left: auto; margin-right: auto; width: 80%; height: 10vh;" />
+</MudDrawerHeader>
+<MudNavMenu>
+    <MudNavLink Href="/DashboardPage" Icon="fa fa-pie-chart">Dashboard</MudNavLink>
+    @if (Credentials != null && !string.IsNullOrEmpty(Credentials.UserRole))
+    {
+        if (Credentials.UserRole.Contains("Client", StringComparison.CurrentCultureIgnoreCase) || Credentials.UserRole.Contains("Facility Incharge", StringComparison.CurrentCultureIgnoreCase))
+        {
+            <MudNavGroup Title="Ordering" Expanded="false" Icon="fa fa-shopping-cart">
+                @if (ProductCategoryData != null && ProductCategoryData.Count > 0)
+                {
+                    <MudNavGroup Title="Physical Count" Expanded="false" Icon="fa fa-check-square-o">
+                        @foreach (var item in ProductCategoryData)
+                        {
+                            string url = $"/PhysicalCountPage/{@item.CategoryCode}";
+                            <MudNavLink Href="@url" Match="NavLinkMatch.Prefix">@item.CategoryDesc</MudNavLink>
+                        }
+                    </MudNavGroup>
+                    <MudNavGroup Title="Make An Orders" Expanded="false" Icon="fa fa-shopping-cart">
+                        <MudNavGroup Title="Routine Orders" Expanded="false">
+                            @foreach (var item in ProductCategoryData)
+                            {
+                                string url = $"/OrderFormPage/{@item.CategoryCode}/1";
+                                <MudNavLink Href="@url" Match="NavLinkMatch.Prefix">@item.CategoryDesc</MudNavLink>
+                            }
+                        </MudNavGroup>
+                        <MudNavGroup Title="Emergency Orders" Expanded="false">
+                            @foreach (var item in ProductCategoryData)
+                            {
+                                string url = $"/OrderFormPage/{@item.CategoryCode}/2";
+                                <MudNavLink Href="@url" Match="NavLinkMatch.Prefix">@item.CategoryDesc</MudNavLink>
+                            }
+                        </MudNavGroup>
+                    </MudNavGroup>
+                }
+            </MudNavGroup>
+        }
+        else if (Credentials.UserRole.Contains("SCTO", StringComparison.CurrentCultureIgnoreCase))
+        {
+            if (ProductCategoryData != null && ProductCategoryData.Count > 0)
+            {
+                <MudNavGroup Title="Orders" Expanded="false" Icon="fa fa-shopping-cart">
+                    <MudNavGroup Title="Routine Orders" Expanded="false">
+                        @foreach (var item in ProductCategoryData)
+                        {
+                            string url = $"/OrderFormPage/{@item.CategoryCode}/1";
+                            <MudNavLink Href="@url" Match="NavLinkMatch.Prefix">@item.CategoryDesc</MudNavLink>
+                        }
+                    </MudNavGroup>
+                    <MudNavGroup Title="Emergency Orders" Expanded="false">
+                        @foreach (var item in ProductCategoryData)
+                        {
+                            string url = $"/OrderFormPage/{@item.CategoryCode}/2";
+                            <MudNavLink Href="@url" Match="NavLinkMatch.Prefix">@item.CategoryDesc</MudNavLink>
+                        }
+                    </MudNavGroup>
+                </MudNavGroup>
+            }
+        }
+        else if (Credentials.UserRole.Contains("LMIS", StringComparison.CurrentCultureIgnoreCase))
+        {
+            if (ProductCategoryData != null && ProductCategoryData.Count > 0)
+            {
+                <MudNavGroup Title="Orders" Expanded="false" Icon="fa fa-shopping-cart">
+                    <MudNavGroup Title="Approved For Allocation" Expanded="false">
+                        <MudNavGroup Title="Routine Orders" Expanded="false">
+                            @foreach (var item in ProductCategoryData)
+                            {
+                                string url = $"/OrderFormPage/{@item.CategoryCode}/1";
+                                <MudNavLink Href="@url" Match="NavLinkMatch.Prefix">@item.CategoryDesc</MudNavLink>
+                            }
+                        </MudNavGroup>
+                        <MudNavGroup Title="Emergency Orders" Expanded="false">
+                            @foreach (var item in ProductCategoryData)
+                            {
+                                string url = $"/OrderFormPage/{@item.CategoryCode}/2";
+                                <MudNavLink Href="@url" Match="NavLinkMatch.Prefix">@item.CategoryDesc</MudNavLink>
+                            }
+                        </MudNavGroup>
+                    </MudNavGroup>
+                    <MudNavGroup Title="Approved For SAP Export" Expanded="false">
+                        <MudNavGroup Title="Routine Orders" Expanded="false">
+                            @foreach (var item in ProductCategoryData)
+                            {
+                                string url = $"/ApprovedForExportPage/{@item.CategoryCode}/1";
+                                <MudNavLink Href="@url" Match="NavLinkMatch.Prefix">@item.CategoryDesc</MudNavLink>
+                            }
+                        </MudNavGroup>
+                        <MudNavGroup Title="Emergency Orders" Expanded="false">
+                            @foreach (var item in ProductCategoryData)
+                            {
+                                string url = $"/ApprovedForExportPage/{@item.CategoryCode}/2";
+                                <MudNavLink Href="@url" Match="NavLinkMatch.Prefix">@item.CategoryDesc</MudNavLink>
+                            }
+                        </MudNavGroup>
+                    </MudNavGroup>
+                </MudNavGroup>
+            }
+        }
+        else if (Credentials.UserRole.Contains("LMISCordinator", StringComparison.CurrentCultureIgnoreCase))
+        {
+            if (ProductCategoryData != null && ProductCategoryData.Count > 0)
+            {
+                <MudNavGroup Title="Orders" Expanded="false" Icon="fa fa-shopping-cart">
+                    <MudNavGroup Title="Routine Orders" Expanded="false">
+                        @foreach (var item in ProductCategoryData)
+                        {
+                            string url = $"/OrderLMISCordinatorPage/{@item.CategoryCode}/1";
+                            <MudNavLink Href="@url" Match="NavLinkMatch.Prefix">@item.CategoryDesc</MudNavLink>
+                        }
+                    </MudNavGroup>
+                    <MudNavGroup Title="Emergency Orders" Expanded="false">
+                        @foreach (var item in ProductCategoryData)
+                        {
+                            string url = $"/OrderLMISCordinatorPage/{@item.CategoryCode}/2";
+                            <MudNavLink Href="@url" Match="NavLinkMatch.Prefix">@item.CategoryDesc</MudNavLink>
+                        }
+                    </MudNavGroup>
+                </MudNavGroup>
+            }
+        }
+        else if (Credentials.UserRole.Contains("Administrator", StringComparison.CurrentCultureIgnoreCase))
+        {
+            <MudNavLink Href="/AccountManagementPage" Match="NavLinkMatch.Prefix">User Management</MudNavLink>
+        }
+        else if (Credentials.UserRole.Contains("NDA"))
+        {
+            <MudNavGroup Title="PV" Icon="fa fa-file-excel-o" Expanded="false">
+                <MudNavLink Href="/SADRRReportingPage" Icon="fa fa-life-ring">PV SADDR</MudNavLink>
+                <MudNavLink Href="/AEFIReportingFormPage" Icon="fa fa-life-ring">PV AEFI</MudNavLink>
+            </MudNavGroup>
+        }
+
+        if (Credentials.UserRole.Contains("LMIS", StringComparison.CurrentCultureIgnoreCase) || Credentials.UserRole.Contains("Administrator", StringComparison.CurrentCultureIgnoreCase))
+        {
+            <MudNavGroup Title="Utilities" Expanded="false" Icon="fa fa-cogs">
+                @if (ProductCategoryData != null && ProductCategoryData.Count > 0)
+                {
+                    <MudNavGroup Title="Web Templates" Expanded="false" Icon="fa fa-list">
+                        @foreach (var item in ProductCategoryData)
+                        {
+                            string url = $"/WebTemplatePage/{@item.CategoryCode}";
+                            <MudNavLink Href="@url" Match="NavLinkMatch.Prefix">@item.CategoryDesc</MudNavLink>
+                        }
+                    </MudNavGroup>
+                }
+            </MudNavGroup>
+        }
+        if (!Credentials.UserRole.Contains("Client", StringComparison.CurrentCultureIgnoreCase) && !Credentials.UserRole.Contains("Facility Incharge", StringComparison.CurrentCultureIgnoreCase))
+        {
+            if (Credentials.UserRole.Contains("QA Lead", StringComparison.CurrentCultureIgnoreCase) || Credentials.UserRole.Contains("QualityAssurance", StringComparison.CurrentCultureIgnoreCase))
+            {
+                <MudNavGroup Title="Quality Control" Expanded="false">
+                    <MudNavGroup Title="Complaints" Expanded="false">
+                        <MudNavLink Href="/SubmittedComplaintsPage" Match="NavLinkMatch.Prefix">Submitted Complaint</MudNavLink>
+                    </MudNavGroup>
+                    <MudNavGroup Title="Regulatory Compliance" Expanded="false">
+                        <MudNavLink Href="/ProductRegistrationStatusPage" Match="NavLinkMatch.Prefix">Drug Registration Status</MudNavLink>
+                        <MudNavLink Href="/ProductVariationStatusPage" Match="NavLinkMatch.Prefix">Variation Status</MudNavLink>
+                        <MudNavLink Href="/CgmpInspectionStatusPage" Match="NavLinkMatch.Prefix">CGMP Inspection Status</MudNavLink>
+                        @* <MudNavLink Href="/MarketAuthorizationStatusPage" Match="NavLinkMatch.Prefix">Status Of Market Authorization</MudNavLink> *@
+                    </MudNavGroup>
+                    <MudNavGroup Title="PV" Icon="fa fa-file-excel-o" Expanded="false">
+                        <MudNavLink Href="/SADRRReportingPage" Icon="fa fa-life-ring">PV SADDR</MudNavLink>
+                        <MudNavLink Href="/AEFIReportingFormPage" Icon="fa fa-life-ring">PV AEFI</MudNavLink>
+                    </MudNavGroup>
+                    <MudNavLink Href="/QualityAuditPage" Match="NavLinkMatch.Prefix">Quality Audit</MudNavLink>
+                </MudNavGroup>
+            }
+            else
+            {
+                <MudNavGroup Title="Customer Care (CCU)" Expanded="false">
+                    <MudNavGroup Title="Complaints" Expanded="false">
+                        <MudNavLink Href="/SubmittedComplaintsPage" Match="NavLinkMatch.Prefix">Submitted Complaint</MudNavLink>
+                    </MudNavGroup>
+                </MudNavGroup>
+            }
+            <MudNavGroup Title="Reports" Expanded="false">
+                <MudNavLink Href="/ComplaintReportPage" Match="NavLinkMatch.Prefix">Complaints</MudNavLink>
+                <MudNavLink Href="/QualityAuditReportPage" Match="NavLinkMatch.Prefix">Quality Audit</MudNavLink>
+                <MudNavLink Href="/CapaRegisterReportPage" Match="NavLinkMatch.Prefix">CAPA REGISTER</MudNavLink>
+                <MudNavGroup Title="Regulatory Compliance" Expanded="false">
+                    <MudNavLink Href="/ProductRegistrationStatusReportPage" Match="NavLinkMatch.Prefix">Drug Registration Status</MudNavLink>
+                    <MudNavLink Href="/VariationStatusReportPage" Match="NavLinkMatch.Prefix">Variation Status</MudNavLink>
+                    <MudNavLink Href="/CgmpInspectionStatusReportPage" Match="NavLinkMatch.Prefix">CGMP Inspection Status</MudNavLink>
+                    @* <MudNavLink Href="/MarketAuthorizationStatusReportPage" Match="NavLinkMatch.Prefix">Status Of Market Authorization</MudNavLink> *@
+                </MudNavGroup>
+                <MudNavGroup Title="PV" Icon="fa fa-file-excel-o" Expanded="false">
+                    <MudNavLink Href="/PVReportPage" Icon="fa fa-life-ring">Adverse Event (AE)</MudNavLink>
+                </MudNavGroup>
+                <MudNavGroup Title="Quality Control" Icon="fa fa-file-excel-o" Expanded="false">
+                    <MudNavLink Href="/ProductTestingReportPage" Icon="fa fa-life-ring">Product Testing</MudNavLink>
+                </MudNavGroup>
+
+            </MudNavGroup>
+        }
+    }
+    @* <MudNavLink Href="/servers" Match="NavLinkMatch.Prefix">Servers</MudNavLink>
+    <MudNavGroup Title="Settings" Expanded="false">
+        <MudNavLink Href="/users" Match="NavLinkMatch.Prefix">Users</MudNavLink>
+        <MudNavLink Href="/security" Match="NavLinkMatch.Prefix">Security</MudNavLink>
+    </MudNavGroup>
+    <MudNavLink Href="/about" Match="NavLinkMatch.Prefix">About</MudNavLink> *@
+    @if(Credentials != null)
+    {
+        <MudNavGroup Title="@Credentials.AccountHolderName" Expanded="false" Icon="fa fa-user">
+            <MudNavLink Href="/ChangePasswordPage" Match="NavLinkMatch.Prefix" Icon="fa fa-key">Change Password</MudNavLink>
+            <MudNavLink Href="/LogoutPage" Match="NavLinkMatch.Prefix" Icon="fa fa-sign-out">Logout</MudNavLink>
+        </MudNavGroup>
+    }
+
+   
+
+        <MudNavGroup Title="A" Expanded="false">
+        <MudNavLink Href="/artproductPage" Match="NavLinkMatch.Prefix">ART PRODUCT</MudNavLink>
+        <MudNavLink Href="/AdverseEventPage" Match="NavLinkMatch.Prefix">ADVERSE EVENT</MudNavLink>
+        <MudNavLink Href="/AgeGroupPage" Match="NavLinkMatch.Prefix">AGE GROUP PAGE</MudNavLink>
+        <MudNavLink Href="/AuditSectionPage" Match="NavLinkMatch.Prefix">AUDIT SECTION PAGE</MudNavLink>
+        <MudNavLink Href="/AuthRepPage" Match="NavLinkMatch.Prefix">AUTHORIZED REP PAGE</MudNavLink>
+          
+        </MudNavGroup>
+
+   
+        
+        
+   
+    <MudNavGroup Title="C" Expanded="false">
+        <MudNavLink Href="/ACPPage" Match="NavLinkMatch.Prefix">ACapaCompletion StatusPage</MudNavLink>
+        <MudNavLink Href="/ACRPage" Match="NavLinkMatch.Prefix">ACapaRegistrationStatusPage</MudNavLink>
+          <MudNavLink Href="/ACDCPage" Match="NavLinkMatch.Prefix">CDCPage</MudNavLink>
+        <MudNavLink Href="/COUNTYPAGE" Match="NavLinkMatch.Prefix">County</MudNavLink>
+        <MudNavLink Href="/ACLIENTPAGE" Match="NavLinkMatch.Prefix">CLIENT TYPE</MudNavLink>
+        <MudNavLink Href="/ACommunicationModePage" Match="NavLinkMatch.Prefix">COMMUNICATION PAGE</MudNavLink>
+        <MudNavLink Href="/AComplaintActionTakenPage" Match="NavLinkMatch.Prefix">ACTION TAKEN PAGE</MudNavLink>
+        <MudNavLink Href="/AComplaintCategoryPage" Match="NavLinkMatch.Prefix">COMPLAINT CATEGORY PAGE</MudNavLink>
+        <MudNavLink Href="/AComplaintClassificationPage" Match="NavLinkMatch.Prefix">COMPLAINT CLASSIFICATION PAGE</MudNavLink>
+        <MudNavLink Href="/AComplaintConfirmationStatusPage" Match="NavLinkMatch.Prefix">COMPLAINTCONFIRMATION PAGE</MudNavLink>
+        <MudNavLink Href="/AComplaintReportingGroupPage" Match="NavLinkMatch.Prefix">COMPLAINT REPORTING PAGE</MudNavLink>
+        <MudNavLink Href="/AComplaintStatusPage" Match="NavLinkMatch.Prefix">COMPLAINT STATUS PAGE</MudNavLink>
+        <MudNavLink Href="/ACompletionTimeScalePage" Match="NavLinkMatch.Prefix">COMPLETION TIME SCALE PAGE</MudNavLink>
+        <MudNavLink Href="/AContactTitlePage" Match="NavLinkMatch.Prefix">CONTACT TITLE PAGE</MudNavLink>
+        <MudNavLink Href="/AContactCategoryPage" Match="NavLinkMatch.Prefix">CONTACT CATEGORY PAGE</MudNavLink>
+        <MudNavLink Href="/ACountryPage" Match="NavLinkMatch.Prefix">COUNTRY  PAGE</MudNavLink>
+        <MudNavLink Href="/ACyclePage" Match="NavLinkMatch.Prefix">CYCLE  PAGE</MudNavLink>
+        <MudNavLink Href="/AContactsPage" Match="NavLinkMatch.Prefix">CONTACTS  PAGE</MudNavLink>
+        
+    </MudNavGroup>
+    <MudNavGroup Title="D" Expanded="false">
+        <MudNavLink Href="/DeliveryPage" Match="NavLinkMatch.Prefix">Delivery Page</MudNavLink>
+        <MudNavLink Href="/DistrictPage" Match="NavLinkMatch.Prefix">District Page</MudNavLink>
+        <MudNavLink Href="/DosePage" Match="NavLinkMatch.Prefix">Dose Page</MudNavLink>
+        <MudNavLink Href="/DrugBasicUnitPage" Match="NavLinkMatch.Prefix">Drug BasicUnit Page</MudNavLink>
+        <MudNavLink Href="/DrugRegimenPage" Match="NavLinkMatch.Prefix">Drug Regimen Page</MudNavLink>
+        <MudNavLink Href="/DrugRegimenCategoryPage" Match="NavLinkMatch.Prefix">Drug Regimen Category Page</MudNavLink>
+        <MudNavLink Href="/DrugRegimenClassificationPage" Match="NavLinkMatch.Prefix">Drug Regimen Classification Page</MudNavLink>
+        @* <MudNavLink Href="/MarketAuthorizationStatusReportPage" Match="NavLinkMatch.Prefix">Status Of Market Authorization</MudNavLink> *@
+    </MudNavGroup>
+    
+    <MudNavGroup Title="F" Expanded="false">
+        <MudNavLink Href="/AFacilitiesPage" Match="NavLinkMatch.Prefix">AFacilities Page</MudNavLink>
+        <MudNavLink Href="/AFacilityLevelOfCarePage" Match="NavLinkMatch.Prefix">AFacility Level Of CarePage</MudNavLink>
+        <MudNavLink Href="/AFacilityTypePage" Match="NavLinkMatch.Prefix">AFacilityType Page</MudNavLink>
+        
+        @* <MudNavLink Href="/MarketAuthorizationStatusReportPage" Match="NavLinkMatch.Prefix">Status Of Market Authorization</MudNavLink> *@
+    </MudNavGroup>
+    <MudNavGroup Title="G" Expanded="false">
+        <MudNavLink Href="/GenderPage" Match="NavLinkMatch.Prefix">Gender Page</MudNavLink>
+        
+        @* <MudNavLink Href="/MarketAuthorizationStatusReportPage" Match="NavLinkMatch.Prefix">Status Of Market Authorization</MudNavLink> *@
+    </MudNavGroup>
+    <MudNavGroup Title="H" Expanded="false">
+        <MudNavLink Href="/ProductRegistrationStatusReportPage" Match="NavLinkMatch.Prefix">Drug Registration Status</MudNavLink>
+        <MudNavLink Href="/VariationStatusReportPage" Match="NavLinkMatch.Prefix">Variation Status</MudNavLink>
+        <MudNavLink Href="/CgmpInspectionStatusReportPage" Match="NavLinkMatch.Prefix">CGMP Inspection Status</MudNavLink>
+        @* <MudNavLink Href="/MarketAuthorizationStatusReportPage" Match="NavLinkMatch.Prefix">Status Of Market Authorization</MudNavLink> *@
+    </MudNavGroup>
+    <MudNavGroup Title="I" Expanded="false">
+        <MudNavLink Href="/ImplementationPage" Match="NavLinkMatch.Prefix">Implementing Partners</MudNavLink>
+        <MudNavLink Href="/InspectionStatusPage" Match="NavLinkMatch.Prefix">Implementing Status</MudNavLink>
+      
+        @* <MudNavLink Href="/MarketAuthorizationStatusReportPage" Match="NavLinkMatch.Prefix">Status Of Market Authorization</MudNavLink> *@
+    </MudNavGroup>
+    <MudNavGroup Title="L" Expanded="false">
+        <MudNavLink Href="/LabPage" Match="NavLinkMatch.Prefix">Laboratory Page</MudNavLink>
+        <MudNavLink Href="/LabCat1Page" Match="NavLinkMatch.Prefix">Lab Category 1 Page</MudNavLink>
+        <MudNavLink Href="/LabCat2Page" Match="NavLinkMatch.Prefix">Lab Category 2 Page</MudNavLink>
+        <MudNavLink Href="/LabCat3Page" Match="NavLinkMatch.Prefix">Lab Category 3 Page</MudNavLink>
+        <MudNavLink Href="/LabCat3Page" Match="NavLinkMatch.Prefix">Lab Category 3 Page</MudNavLink>
+       
+       
+        
+        @* <MudNavLink Href="/MarketAuthorizationStatusReportPage" Match="NavLinkMatch.Prefix">Status Of Market Authorization</MudNavLink> *@
+    </MudNavGroup>
+    <MudNavGroup Title="M" Expanded="false">
+        <MudNavLink Href="/MonthPage" Match="NavLinkMatch.Prefix"> Month</MudNavLink>
+        <MudNavLink Href="/MotherStatusPage" Match="NavLinkMatch.Prefix">Mother Status</MudNavLink>
+        
+        @* <MudNavLink Href="/MarketAuthorizationStatusReportPage" Match="NavLinkMatch.Prefix">Status Of Market Authorization</MudNavLink> *@
+    </MudNavGroup>
+  
+    <MudNavGroup Title="O" Expanded="false">
+        <MudNavLink Href="/OrderStatusPage" Match="NavLinkMatch.Prefix">ORDER STATUS </MudNavLink>
+        <MudNavLink Href="/OrderTypePage" Match="NavLinkMatch.Prefix">ORDER TYPE </MudNavLink>
+        <MudNavLink Href="/AOwnershipPage" Match="NavLinkMatch.Prefix">AOWNERSHIP</MudNavLink>
+        @* <MudNavLink Href="/MarketAuthorizationStatusReportPage" Match="NavLinkMatch.Prefix">Status Of Market Authorization</MudNavLink> *@
+    </MudNavGroup>
+    
+  
+    <MudNavGroup Title="P" Expanded="false">
+        <MudNavLink Href="/PvPage" Match="NavLinkMatch.Prefix">PV PAGE</MudNavLink>
+        <MudNavLink Href="/APvPage" Match="NavLinkMatch.Prefix">APVREPORTING TYPE </MudNavLink>
+        
+    </MudNavGroup>
+    <MudNavGroup Title="R" Expanded="false">
+        <MudNavLink Href="/ReleaseInstructionPage" Match="NavLinkMatch.Prefix">RELEASE INSTRUCTION</MudNavLink>
+        <MudNavLink Href="/RegistrationStatusPage" Match="NavLinkMatch.Prefix">REGISTRATION STATUS</MudNavLink>
+        <MudNavLink Href="/RegionPage" Match="NavLinkMatch.Prefix">REGION PAGE</MudNavLink>
+
+
+         <MudNavLink Href="/MarketAuthorizationStatusReportPage" Match="NavLinkMatch.Prefix">Status Of Market Authorization</MudNavLink>
+    </MudNavGroup>
+    <MudNavGroup Title="S" Expanded="false">
+        <MudNavLink Href="/SupplierPage" Match="NavLinkMatch.Prefix">SUPPLIER</MudNavLink>
+        <MudNavLink Href="/SubCountyPage" Match="NavLinkMatch.Prefix">SUBCOUNTY</MudNavLink>
+        <MudNavLink Href="/SectorChangePage" Match="NavLinkMatch.Prefix">SECTOR CHANGE</MudNavLink>
+        <MudNavLink Href="/SAPbatchInfoPage" Match="NavLinkMatch.Prefix">SAP BATCH INFORMATION</MudNavLink>
+      
+       
+    </MudNavGroup>
+    <MudNavGroup Title="T" Expanded="false">
+        <MudNavLink Href="/TrimesterPage" Match="NavLinkMatch.Prefix">Trimester</MudNavLink>
+        <MudNavLink Href="/TreatmentCategoryPage" Match="NavLinkMatch.Prefix">TREATMENT CATEGORY</MudNavLink>
+        <MudNavLink Href="/TreatmentPage" Match="NavLinkMatch.Prefix">TREATMENT CATEGORY</MudNavLink>
+        
+    </MudNavGroup>
+   
+    <MudNavGroup Title="V" Expanded="false">
+        <MudNavLink Href="/VillagesPage" Match="NavLinkMatch.Prefix">Village Page</MudNavLink>
+        <MudNavLink Href="/VerificationMethodPage" Match="NavLinkMatch.Prefix">Verification Method Page</MudNavLink>
+        <MudNavLink Href="/AVariationStatusPage" Match="NavLinkMatch.Prefix">Variation Method Page</MudNavLink>
+        
+        @* <MudNavLink Href="/MarketAuthorizationStatusReportPage" Match="NavLinkMatch.Prefix">Status Of Market Authorization</MudNavLink> *@
+    </MudNavGroup>
+ 
+    <MudNavGroup Title="Y" Expanded="false">
+        <MudNavLink Href="/YesNoPage" Match="NavLinkMatch.Prefix">YES NO PAGE</MudNavLink>
+      
+        @* <MudNavLink Href="/MarketAuthorizationStatusReportPage" Match="NavLinkMatch.Prefix">Status Of Market Authorization</MudNavLink> *@
+    </MudNavGroup>
+
+
+    
+       
+        
+        
+
+</MudNavMenu>
+
+@code {
+    List<AProductCategory>? ProductCategoryData { get; set; }
+    LoginResultModel? Credentials { get; set; }
+    private bool collapseNavMenu = true;
+
+    private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+
+    private void ToggleNavMenu()
+    {
+        collapseNavMenu = !collapseNavMenu;
+    }
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        await utilityRepo.GetPrimaryData();
+        ProductCategoryData = await utilityRepo.GetProductCategory();
+        Credentials = await AuthService.GetUserCredentials();
+    }
+}
